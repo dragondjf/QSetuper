@@ -21,3 +21,7 @@
 *.app
 *.bin
 *.7z
+
+example/*
+*.qrc
+*.pro.user
