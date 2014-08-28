@@ -92,7 +92,7 @@ def unzip_7z(scr, root, obj):
     time.sleep(1)
     os.mkdir(destination)
     time.sleep(1)
-    p = subprocess.Popen(['7-Zip/7z', 'e', '%s/%s.7z.001' % (scr, obj), '-o%s'%destination], stdout=subprocess.PIPE, shell=False)
+    p = subprocess.Popen(['7-Zip/7z', 'x', '%s/%s.7z.001' % (scr, obj), '-o%s'%destination], stdout=subprocess.PIPE, shell=False)
     print ''.join(p.stdout.readlines())
     return destination
 

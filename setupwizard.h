@@ -34,6 +34,8 @@ public:
     QString command_7z;
     QString info;
     QProcess* cmd;
+    QString obj;
+    QString defaultInstallPath;
 
 public slots:
     void install();

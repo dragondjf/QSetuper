@@ -61,12 +61,14 @@ SetupWizard::SetupWizard(QWidget *parent)
 void SetupWizard::initData()
 {
     cmd = new QProcess;
+    obj = "QFramer";
+    defaultInstallPath = "E:\\";
 }
 
 void SetupWizard::initUI()
 {
     setupLabel = new QLabel("Setup path:");
-    setupPathLineEdit = new QLineEdit("E:\\QFramer");
+    setupPathLineEdit = new QLineEdit(defaultInstallPath + obj);
     changePathButton = new QPushButton("...");
     installButton = new QPushButton("install");
     outPutEdit = new QTextEdit;
@@ -100,7 +102,7 @@ void SetupWizard::initConnect()
 void SetupWizard::install()
 {
     outPutEdit->setText("");
-    QString obj = "QFramer";
+
     QString installPath = setupPathLineEdit->text();
     tempf = QDir::toNativeSeparators(QString("%1\\%2").arg(QDir::tempPath(), obj));
     rmDir(installPath);
@@ -108,7 +110,7 @@ void SetupWizard::install()
     QDir().rmdir(tempf);
     QDir().mkdir(tempf);
     install7z(tempf);
-    command_7z = QString("%1\\7z.exe e %2\\%3.7z.001 -o%4").arg(tempf, tempf, obj, installPath);
+    command_7z = QString("%1\\7z.exe x %2\\%3.7z.001 -o%4").arg(tempf, tempf, obj, defaultInstallPath);
     info = command_7z;
     cmd->start(command_7z);
 }
