@@ -45,14 +45,14 @@
 #include <QProcessEnvironment>
 #include <QResource>
 #include "SetupWizard.h"
+#include "pictureview.h"
 
 SetupWizard::SetupWizard(QWidget *parent)
-    : QDialog(parent)
+    : FBaseDialog(parent)
 {
 
-    setWindowFlags(Qt::FramelessWindowHint);
     setWindowTitle(tr("Setup"));
-    setFixedSize(400, 300);
+    setFixedSize(QSize(587, 437));
     initData();
     initUI();
     initConnect();
@@ -67,11 +67,14 @@ void SetupWizard::initData()
 
 void SetupWizard::initUI()
 {
+    PictureView* pictureView = new PictureView;
+    pictureView->setFixedHeight(300);
+
     setupLabel = new QLabel("Setup path:");
     setupPathLineEdit = new QLineEdit(defaultInstallPath + obj);
     changePathButton = new QPushButton("...");
     installButton = new QPushButton("install");
-    outPutEdit = new QTextEdit;
+    installButton->setFixedSize(100, 50);
 
     QHBoxLayout* pathLayout = new QHBoxLayout;
     pathLayout->addWidget(setupLabel);
@@ -81,15 +84,18 @@ void SetupWizard::initUI()
     QHBoxLayout* navLayout = new QHBoxLayout;
     navLayout->addStretch();
     navLayout->addWidget(installButton);
+    navLayout->addStretch();
 
-    QVBoxLayout* mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(outPutEdit);
-    mainLayout->addLayout(pathLayout);
+    QVBoxLayout* mainLayout = (QVBoxLayout*)layout();
+
+    mainLayout->addWidget(pictureView);
+    mainLayout->addSpacing(10);
     mainLayout->addLayout(navLayout);
-
+    mainLayout->addStretch();
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(mainLayout);
 
-    rmDir(setupPathLineEdit->text());
+    rmDir(defaultInstallPath);
 }
 
 void SetupWizard::initConnect()
@@ -99,11 +105,42 @@ void SetupWizard::initConnect()
 }
 
 
+void SetupWizard::mousePressEvent(QMouseEvent *e)
+{
+    if(e->button() & Qt::LeftButton)
+    {
+        dragPosition = e->globalPos() - frameGeometry().topLeft();
+        leftbuttonpressed = true;
+    }
+    e->accept();
+}
+
+
+void SetupWizard::mouseReleaseEvent(QMouseEvent *e)
+{
+    leftbuttonpressed = false;
+    e->accept();
+}
+
+void SetupWizard::mouseMoveEvent(QMouseEvent *e)
+{
+    if(leftbuttonpressed)
+    {
+        move(e->globalPos() - dragPosition);
+        e->accept();
+    }
+}
+
+void SetupWizard::closeEvent(QCloseEvent *event)
+{
+    cmd->kill();
+    delete cmd;
+    cmd = NULL;
+}
+
 void SetupWizard::install()
 {
-    outPutEdit->setText("");
-
-    QString installPath = setupPathLineEdit->text();
+    QString installPath = defaultInstallPath;
     tempf = QDir::toNativeSeparators(QString("%1\\%2").arg(QDir::tempPath(), obj));
     rmDir(installPath);
     QDir().mkdir(installPath);
@@ -118,7 +155,10 @@ void SetupWizard::install()
 void SetupWizard::setOutPut()
 {
     info += cmd->readAll();
-    outPutEdit->setText(info);
+    if(info.contains("Everything is Ok"))
+    {
+
+    }
 }
 
 void SetupWizard::install7z(QString& tempf)
@@ -212,3 +252,5 @@ bool SetupWizard::rmDir(const QString &fn)
     }
     return result;
 }
+
+

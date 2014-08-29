@@ -14,13 +14,32 @@ TEMPLATE = app
 DEPENDPATH += .
 
 SOURCES += main.cpp\
-    setupwizard.cpp
+    setupwizard.cpp \
+    customsetuppage.cpp \
+    defaultsetuppage.cpp \
+    installbarpage.cpp \
+    finishpage.cpp \
+    pictureview.cpp \
+    fbasedialog.cpp \
+    ftitlebar.cpp \
+    futil.cpp
 
 HEADERS  += \
-    setupwizard.h
+    setupwizard.h \
+    customsetuppage.h \
+    defaultsetuppage.h \
+    installbarpage.h \
+    finishpage.h \
+    pictureview.h \
+    fbasedialog.h \
+    ftitlebar.h \
+    futil.h
 
 contains(QT_MAJOR_VERSION, 5){
-    RC_ICONS = "icon/setup_green.ico"
+    RC_ICONS = "skin/setup_green.ico"
 }
 
-RESOURCES +=QFramer0.qrc QFramer1.qrc QFramer2.qrc 7-Zip.qrc
+RESOURCES += skin.qrc
+
+RESOURCES +=QFramer0.qrc QFramer1.qrc QFramer2.qrc 7-Zip.qrc \
+    skin.qrc
