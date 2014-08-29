@@ -62,7 +62,7 @@ void SetupWizard::initData()
 {
     cmd = new QProcess;
     obj = "QFramer";
-    defaultInstallPath = "E:\\";
+    defaultInstallPath = "c:\\Program Files\\";
 }
 
 void SetupWizard::initUI()

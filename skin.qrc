@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>skin/1.jpg</file>
+        <file>skin/2.jpg</file>
+        <file>skin/3.jpg</file>
+        <file>skin/4.jpg</file>
+        <file>skin/5.jpg</file>
+        <file>skin/appbar.close.png</file>
+        <file>skin/appbar.minus.png</file>
+        <file>skin/QFramer.png</file>
+        <file>skin/theme.qss</file>
+    </qresource>
+</RCC>

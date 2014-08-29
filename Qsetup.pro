@@ -41,5 +41,4 @@ contains(QT_MAJOR_VERSION, 5){
 
 RESOURCES += skin.qrc
 
-RESOURCES +=QFramer0.qrc QFramer1.qrc QFramer2.qrc 7-Zip.qrc \
-    skin.qrc
+RESOURCES +=QFramer0.qrc QFramer1.qrc QFramer2.qrc 7-Zip.qrc
