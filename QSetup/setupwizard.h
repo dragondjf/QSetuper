@@ -8,7 +8,7 @@
 #include <QFile>
 #include <QTextEdit>
 #include <QProcess>
-#include <fbasedialog.h>
+#include "fbasedialog.h"
 #include <QCloseEvent>
 
 //! [0] //! [1]
