@@ -27,7 +27,7 @@
 #include <QMouseEvent>
 #include <QShowEvent>
 #include <QCloseEvent>
-#include "ftitlebar.h"
+#include "QSetup/ftitlebar.h"
 
 
 class FBaseDialog : public QDialog

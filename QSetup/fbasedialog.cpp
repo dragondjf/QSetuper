@@ -60,6 +60,7 @@ void FBaseDialog::initBaseUI()
 void FBaseDialog::initBaseConnect()
 {
     connect(titlebar->getCloseButton(), SIGNAL(clicked()), this, SLOT(animationClose()));
+    connect(titlebar->getMinButton(), SIGNAL(clicked()), this, SLOT(showMinimized()));
 }
 
 FTitleBar* FBaseDialog::getTitleBar()

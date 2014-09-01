@@ -30,7 +30,7 @@ void PictureView::initUI()
 
     setPixmap(QPixmap(pictures[currentIndex]));
 
-//    animationPPT();
+    animationPPT();
 }
 
 void PictureView::initConnect()

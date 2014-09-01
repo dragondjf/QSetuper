@@ -1,5 +1,5 @@
-#include "setupwizard.h"
-#include "futil.h"
+#include "QSetup/setupwizard.h"
+#include "QSetup/futil.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

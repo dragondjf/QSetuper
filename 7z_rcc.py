@@ -133,6 +133,8 @@ def generateQRCFile(destination=None, obj=None):
     qrcGenerator.genXml(qrc)
     qrcfiles.append(qrc)
 
+    qrcfiles.append('skin.qrc')
+
     return qrcfiles
 
 def addQRCToPro(profile, qrcfiles):
@@ -148,7 +150,7 @@ def addQRCToPro(profile, qrcfiles):
 def clearQRCFiles():
     files = getfiles('.')
     for f in files:
-        if f.endswith('.qrc'):
+        if f.endswith('.qrc') and not f.endswith('skin.qrc'):
             delete_file_folder(f)
             print 'delete', f
 
