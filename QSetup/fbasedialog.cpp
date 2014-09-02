@@ -99,13 +99,16 @@ void FBaseDialog::showEvent(QShowEvent *event)
 
     QDesktopWidget* desktopWidget = QApplication::desktop();
     QPropertyAnimation *animation = new QPropertyAnimation(this, "geometry");
-    animation->setDuration(200);
+    animation->setDuration(2000);
     int w = desktopWidget->availableGeometry().width();
     int h = desktopWidget->availableGeometry().height();
-    animation->setStartValue(QRect(w * 0.5, h*0.5, 0, 0));
-    animation->setEndValue(QRect(w /2 - normalSize.width()/2,
-                                 h / 2 - normalSize.height() / 2,
-                                 normalSize.width(), normalSize.height()));
+    animation->setStartValue(QRect(w /2 - size().width()/2,
+                                   0,
+                                   size().width(), size().height()));
+    animation->setEndValue(QRect(w /2 - size().width()/2,
+                                 h / 2 - size().height() / 2,
+                                 size().width(), size().height()));
+    animation->setEasingCurve(QEasingCurve::OutElastic);
     animation->start();
     QWidget::showEvent(event);
 }

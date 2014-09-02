@@ -50,6 +50,7 @@ public:
     void rmFile(QFile &fn);
     void rmFile(const QString &fn);
     bool rmDir(const QString &fn);
+    void moveCenter();
 
 protected:
     void mouseMoveEvent(QMouseEvent *e);

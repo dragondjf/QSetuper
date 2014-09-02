@@ -42,6 +42,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QProcess>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QProcessEnvironment>
 #include <QResource>
 #include "SetupWizard.h"
@@ -107,6 +109,8 @@ void SetupWizard::initUI()
     mainLayout->addWidget(progressBar);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(mainLayout);
+
+    normalSize = size();
 }
 
 void SetupWizard::initConnect()
@@ -117,6 +121,14 @@ void SetupWizard::initConnect()
     connect(cmd, SIGNAL(readyRead()), this, SLOT(setOutPut()));
 }
 
+
+void SetupWizard::moveCenter()
+{
+    QDesktopWidget* desktopWidget = QApplication::desktop();
+    int x = (desktopWidget->availableGeometry().size().width() - width()) / 2;
+    int y = (desktopWidget->availableGeometry().size().height() - height()) / 2;
+    move(x , y);
+}
 
 void SetupWizard::progressAnimation()
 {
