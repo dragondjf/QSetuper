@@ -113,8 +113,6 @@ void FBaseDialog::showEvent(QShowEvent *event)
 void FBaseDialog::animationClose()
 {
     QPropertyAnimation *animation = new QPropertyAnimation(this, "windowOpacity");
-    connect(animation, SIGNAL(finished()), this, SLOT(deleteLater()));
-    connect(animation, SIGNAL(finished()), this, SLOT(close()));
     connect(animation, SIGNAL(finished()), qApp, SLOT(quit()));
     animation->setDuration(1500);
     animation->setStartValue(1);

@@ -47,10 +47,11 @@
 #include "SetupWizard.h"
 #include "pictureview.h"
 
+
 SetupWizard::SetupWizard(QWidget *parent)
     : FBaseDialog(parent)
 {
-
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     setWindowTitle(tr("Setup"));
     setFixedSize(QSize(587, 437));
     initData();
@@ -62,7 +63,9 @@ void SetupWizard::initData()
 {
     cmd = new QProcess;
     obj = "QFramer";
-    defaultInstallPath = "c:\\";
+    appExeName = "QFramer.exe";
+    defaultInstallPath = QDir("c:").absolutePath();
+    progressDuration = 2800;
 }
 
 void SetupWizard::initUI()
@@ -70,10 +73,19 @@ void SetupWizard::initUI()
     PictureView* pictureView = new PictureView;
     pictureView->setFixedHeight(300);
 
+    progressBar = new QProgressBar(this);
+    progressBar->setObjectName(QString("AntimationBar"));
+    progressBar->setRange(0, 100);
+    progressBarAnimation = new QPropertyAnimation(progressBar, "value");
+    progressBarAnimation->setDuration(progressDuration);
+    progressBarAnimation->setStartValue(0);
+    progressBarAnimation->setEndValue(100);
+    progressBarAnimation->setEasingCurve(QEasingCurve::OutCubic);
+
     setupLabel = new QLabel("Setup path:");
     setupPathLineEdit = new QLineEdit(defaultInstallPath + obj);
     changePathButton = new QPushButton("...");
-    installButton = new QPushButton("install");
+    installButton = new QPushButton("Quick install");
     installButton->setFixedSize(100, 50);
 
     QHBoxLayout* pathLayout = new QHBoxLayout;
@@ -92,18 +104,40 @@ void SetupWizard::initUI()
     mainLayout->addSpacing(10);
     mainLayout->addLayout(navLayout);
     mainLayout->addStretch();
+    mainLayout->addWidget(progressBar);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(mainLayout);
-
-    rmDir(defaultInstallPath);
 }
 
 void SetupWizard::initConnect()
 {
+    connect(installButton, SIGNAL(clicked()), this, SLOT(progressAnimation()));
     connect(installButton, SIGNAL(clicked()), this, SLOT(install()));
+    connect(progressBarAnimation, SIGNAL(finished()), progressBarAnimation, SLOT(start()));
     connect(cmd, SIGNAL(readyRead()), this, SLOT(setOutPut()));
 }
 
+
+void SetupWizard::progressAnimation()
+{
+    if(installButton->text() == QString("Quick install")){
+        progressBar->show();
+        progressBar->setTextVisible(true);
+        progressBarAnimation->start();
+    }
+}
+
+void SetupWizard::progressAnimationClose()
+{
+    progressBar->setTextVisible(false);
+    QPropertyAnimation *animation = new QPropertyAnimation(progressBar, "geometry");
+    connect(animation, SIGNAL(finished()), progressBar, SLOT(hide()));
+    animation->setDuration(500);
+    int h = progressBar->height();
+    animation->setStartValue(progressBar->geometry());
+    animation->setEndValue(QRect(progressBar->x(), progressBar->y() + h * 0.5 + 5, progressBar->width(), 0));
+    animation->start();
+}
 
 void SetupWizard::mousePressEvent(QMouseEvent *e)
 {
@@ -133,50 +167,66 @@ void SetupWizard::mouseMoveEvent(QMouseEvent *e)
 
 void SetupWizard::closeEvent(QCloseEvent *event)
 {
+
     cmd->kill();
     delete cmd;
     cmd = NULL;
+    FBaseDialog::closeEvent(event);
 }
 
 void SetupWizard::install()
 {
-    QString installPath = defaultInstallPath;
-    tempf = QDir::toNativeSeparators(QString("%1\\%2").arg(QDir::tempPath(), obj));
-    rmDir(installPath);
-    QDir().mkdir(installPath);
-    QDir().rmdir(tempf);
-    QDir().mkdir(tempf);
-    install7z(tempf);
-    command_7z = QString("%1\\7z.exe x %2\\%3.7z.001 -o%4").arg(tempf, tempf, obj, defaultInstallPath);
-    info = command_7z;
-    cmd->start(command_7z);
+    if(installButton->text() == QString("Quick install")){
+        rmDir(defaultInstallPath + obj);
+        QString installPath = defaultInstallPath;
+        tempf = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::tempPath(), obj));
+        rmDir(installPath);
+        QDir().mkdir(installPath);
+        QDir().rmdir(tempf);
+        QDir().mkdir(tempf);
+        install7z(tempf);
+        command_7z = QString("%1/7z.exe x %2/%3.7z.001 -o%4").arg(tempf, tempf, obj, defaultInstallPath);
+        info = command_7z;
+        cmd->start(command_7z);
+    }
+    else if (installButton->text() == QString("Quick experience")){
+        QProcess *process = new QProcess;
+        QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
+//        qDebug(qPrintable(QDir::toNativeSeparators(command)));
+        process->start(QDir::toNativeSeparators(command));
+        qApp->quit();
+    }
 }
 
 void SetupWizard::setOutPut()
 {
     info += cmd->readAll();
+//    qDebug(qPrintable(info));
     if(info.contains("Everything is Ok"))
     {
-
+        installButton->setText(tr("Quick experience"));
+        progressBar->setValue(100);
+        progressBarAnimation->stop();
+        progressAnimationClose();
     }
 }
 
 void SetupWizard::install7z(QString& tempf)
 {
-    if (QFile::exists(QString("%1\\7z.dll").arg(tempf)))
+    if (QFile::exists(QString("%1/7z.dll").arg(tempf)))
     {
-        rmFile(QString("%1\\7z.dll").arg(tempf));
+        rmFile(QString("%1/7z.dll").arg(tempf));
     }
     QString srcfName;
     srcfName = QString(":/7-Zip/7-Zip/%1").arg("7z.dll");
-    instIndvfl(srcfName, QString("%1\\7z.dll").arg(tempf));
+    instIndvfl(srcfName, QString("%1/7z.dll").arg(tempf));
 
-    if (QFile::exists(QString("%1\\7z.exe").arg(tempf)))
+    if (QFile::exists(QString("%1/7z.exe").arg(tempf)))
     {
-        rmFile(QString("%1\\7z.exe").arg(tempf));
+        rmFile(QString("%1/7z.exe").arg(tempf));
     }
     srcfName = QString(":/7-Zip/7-Zip/%1").arg("7z.exe");
-    instIndvfl(srcfName, QString("%1\\7z.exe").arg(tempf));
+    instIndvfl(srcfName, QString("%1/7z.exe").arg(tempf));
 
     QString obj = "QFramer";
     QStringList files;
@@ -185,7 +235,7 @@ void SetupWizard::install7z(QString& tempf)
         QString fname = QString("%1.7z.00").arg(obj) + QString::number(i);
         QString fpath = QString(":/QFramer/example/qrcfiles/") + fname;
         files << fpath;
-        QString ftemppath = QString("%1\\%2").arg(tempf, fname);
+        QString ftemppath = QString("%1/%2").arg(tempf, fname);
 
         if (QFile::exists(ftemppath))
         {

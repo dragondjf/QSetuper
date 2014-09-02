@@ -7,9 +7,12 @@
 #include <QLabel>
 #include <QFile>
 #include <QTextEdit>
+#include <QProgressBar>
 #include <QProcess>
-#include "fbasedialog.h"
 #include <QCloseEvent>
+#include <QPropertyAnimation>
+#include "fbasedialog.h"
+
 
 //! [0] //! [1]
 class SetupWizard : public FBaseDialog
@@ -27,10 +30,15 @@ public:
     QString info;
     QProcess* cmd;
     QString obj;
+    QString appExeName;
     QString defaultInstallPath;
 
     QPoint dragPosition;
     bool leftbuttonpressed;
+
+    QProgressBar* progressBar;
+    QPropertyAnimation* progressBarAnimation;
+    int progressDuration;
 
 public:
     explicit SetupWizard(QWidget *parent = 0);
@@ -52,6 +60,8 @@ protected:
 public slots:
     void install();
     void setOutPut();
+    void progressAnimation();
+    void progressAnimationClose();
 };
 
 #endif
