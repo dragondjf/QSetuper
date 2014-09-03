@@ -200,4 +200,4 @@ if __name__ == '__main__':
     print getfiles('7-Zip')
     clearQRCFiles()
     qrcfiles = generateQRCFile(destination, objectName)
-    addQRCToPro('Qsetup.pro', qrcfiles)
+    addQRCToPro('Qsetuper.pro', qrcfiles)
