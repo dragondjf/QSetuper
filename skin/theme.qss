@@ -20,7 +20,12 @@ QDialog QLabel#logoLabel{
 QDialog QLabel#content{
     color: white;
     font-size: 16px;
-    padding-left: 5px;
+    padding-left:5px;
+}
+
+QDialog QLabel{
+    color: white;
+    font-size: 12px;
 }
 
 
@@ -34,62 +39,62 @@ QDialog QLineEdit {
 }
 
 
-QDialog QToolButton{
+QDialog QFrame#FTitleBar QToolButton{
     background-color: transparent;
     color: white;
 }
 
 
-QDialog QToolButton:hover{
+QDialog QFrame#FTitleBar QToolButton:hover{
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 82, 112, 255), stop:0.5 rgba(0, 211, 197, 255), stop:1 rgba(0, 82, 112, 255));
     border: 1px;
 }
 
-QDialog QToolButton:disabled{
+QDialog QFrame#FTitleBar QToolButton:disabled{
     background-color: gray;
     border: 1px;
 }
 
-QDialog QToolButton[popupMode="1"] { /* only for MenuButtonPopup */
+QDialog QFrame#FTitleBar QToolButton[popupMode="1"] { /* only for MenuButtonPopup */
     padding-right: 0px; /* make way for the popup button */
 }
 
-QDialog QToolButton::menu-button {
+QDialog QFrame#FTitleBar QToolButton::menu-button {
     border: none;
 }
 
-QDialog QToolButton::menu-arrow {
+QDialog QFrame#FTitleBar QToolButton::menu-arrow {
     image: none;
 }
 
-QDialog QToolButton::menu-indicator {
+QDialog QFrame#FTitleBar QToolButton::menu-indicator {
     image: none;
 }
 
-QDialog QToolButton:open { /* when the button has its menu open */
+QDialog QFrame#FTitleBar QToolButton:open { /* when the button has its menu open */
     background-color: rgb(0, 82, 112);
 }
 
 
-QDialog QToolButton#close{
+QDialog QFrame#FTitleBar QToolButton#close{
     background-color: transparent;
     color: white;
 }
 
 
-QDialog QToolButton#close:hover{
+QDialog QFrame#FTitleBar QToolButton#close:hover{
     background-color: red;
     border: 1px;
 }
 
-QDialog QToolButton#logo{
+QDialog QFrame#FTitleBar QToolButton#logo{
     background-color: transparent;
     color: white;
     border: 1px;
 }
 
 
-QDialog QToolButton#logo:hover{
+QDialog QFrame#FTitleBar QToolButton#logo:hover{
     background-color: transparent;
     border: 1px;
 }
@@ -98,6 +103,11 @@ QDialog QToolButton#logo:hover{
 QDialog QPushButton{
     background-color: rgb(43, 65, 77);
     border: none;
+    color: white;
+}
+
+QDialog QPushButton:hover{
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 82, 112, 255), stop:0.5 rgba(0, 211, 197, 255), stop:1 rgba(0, 82, 112, 255));
     color: white;
 }
 
@@ -120,4 +130,25 @@ QProgressBar {
 
 QProgressBar::chunk {
     background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 82, 112, 255), stop:0.5 rgba(0, 211, 197, 255), stop:1 rgba(0, 82, 112, 255));
+}
+
+QPushButton#installButton{
+    font-size: 20px;
+}
+
+QToolButton#settingButton{
+    border-image: url(:/skin/appbar.settings.white.png)
+}
+
+QToolButton#settingButton:hover{
+    border-image: url(:/skin/appbar.settings.black.png)
+}
+
+QToolButton#settingButton:pressed{
+    border-image: url(:/skin/appbar.settings.white.png)
+}
+
+QLineEdit#setupPathLineEdit{
+    border:none;
+    border-radius: 0px;
 }

@@ -46,6 +46,7 @@
 #include <QDesktopWidget>
 #include <QProcessEnvironment>
 #include <QResource>
+#include <QFileDialog>
 #include "SetupWizard.h"
 #include "pictureview.h"
 
@@ -55,7 +56,6 @@ SetupWizard::SetupWizard(QWidget *parent)
 {
     setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
     setWindowTitle(tr("Setup"));
-    setFixedSize(QSize(587, 437));
     initData();
     initUI();
     initConnect();
@@ -63,6 +63,8 @@ SetupWizard::SetupWizard(QWidget *parent)
 
 void SetupWizard::initData()
 {
+    largeHeight = 500;
+    smallHeight = 437;
     cmd = new QProcess;
     obj = "QFramer";
     appExeName = "QFramer.exe";
@@ -76,6 +78,7 @@ void SetupWizard::initUI()
     pictureView->setFixedHeight(300);
 
     progressBar = new QProgressBar(this);
+    progressBar->setFixedHeight(10);
     progressBar->setObjectName(QString("AntimationBar"));
     progressBar->setRange(0, 100);
     progressBarAnimation = new QPropertyAnimation(progressBar, "value");
@@ -84,16 +87,37 @@ void SetupWizard::initUI()
     progressBarAnimation->setEndValue(100);
     progressBarAnimation->setEasingCurve(QEasingCurve::OutCubic);
 
-    setupLabel = new QLabel("Setup path:");
-    setupPathLineEdit = new QLineEdit(defaultInstallPath + obj);
+    setupPathLineEdit = new QLineEdit(QDir::toNativeSeparators(QString("%1/%2").arg(defaultInstallPath, obj)));
+    setupPathLineEdit->setFixedHeight(30);
+    setupPathLineEdit->setObjectName("setupPathLineEdit");
     changePathButton = new QPushButton("...");
+    changePathButton->setFixedSize(60, 30);
     installButton = new QPushButton("Quick install");
-    installButton->setFixedSize(100, 50);
+    installButton->setObjectName("installButton");
+    installButton->setFixedSize(200, 50);
 
+    QLabel* settingLabel = new QLabel(tr("Custom options"));
+    settingButton = new QToolButton;
+    settingButton->setObjectName("settingButton");
+    settingButton->setFixedSize(QSize(36, 36));
+    QHBoxLayout* settingLayout = new QHBoxLayout;
+    settingLayout->addStretch();
+    settingLayout->addWidget(settingLabel);
+    settingLayout->addWidget(settingButton);
+    settingLayout->addSpacing(5);
+
+    settingWidget = new QWidget;
+    QVBoxLayout* settingMainLayout = new QVBoxLayout;
     QHBoxLayout* pathLayout = new QHBoxLayout;
-    pathLayout->addWidget(setupLabel);
+    pathLayout->setSpacing(0);
+    pathLayout->addSpacing(20);
     pathLayout->addWidget(setupPathLineEdit);
     pathLayout->addWidget(changePathButton);
+    pathLayout->addSpacing(20);
+    pathLayout->setContentsMargins(0, 0, 0, 0);
+
+    settingMainLayout->addLayout(pathLayout);
+    settingWidget->setLayout(settingMainLayout);
 
     QHBoxLayout* navLayout = new QHBoxLayout;
     navLayout->addStretch();
@@ -105,18 +129,28 @@ void SetupWizard::initUI()
     mainLayout->addWidget(pictureView);
     mainLayout->addSpacing(10);
     mainLayout->addLayout(navLayout);
+    mainLayout->addWidget(settingWidget);
     mainLayout->addStretch();
+    mainLayout->addLayout(settingLayout);
     mainLayout->addWidget(progressBar);
+
     mainLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(mainLayout);
 
     normalSize = size();
+    progressBar->hide();
+    settingWidget->hide();
+    setFixedWidth(587);
+    resize(QSize(587, smallHeight));
 }
 
 void SetupWizard::initConnect()
 {
     connect(installButton, SIGNAL(clicked()), this, SLOT(progressAnimation()));
     connect(installButton, SIGNAL(clicked()), this, SLOT(install()));
+    connect(settingButton, SIGNAL(clicked()), this, SLOT(showOptionAnimation()));
+    connect(settingButton, SIGNAL(clicked()), this, SLOT(showOptionSettings()));
+    connect(changePathButton, SIGNAL(clicked()), this, SLOT(changePath()));
     connect(progressBarAnimation, SIGNAL(finished()), progressBarAnimation, SLOT(start()));
     connect(cmd, SIGNAL(readyRead()), this, SLOT(setOutPut()));
 }
@@ -128,6 +162,43 @@ void SetupWizard::moveCenter()
     int x = (desktopWidget->availableGeometry().size().width() - width()) / 2;
     int y = (desktopWidget->availableGeometry().size().height() - height()) / 2;
     move(x , y);
+}
+
+void SetupWizard::showOptionAnimation()
+{
+    QPropertyAnimation *animation = new QPropertyAnimation(this, "geometry");
+    disconnect(animation, SIGNAL(finished()), settingWidget, 0);
+    if (height() == smallHeight)
+    {
+        animation->setStartValue(geometry());
+        animation->setEndValue(QRect(x(), y(), width(),largeHeight));
+        connect(animation, SIGNAL(finished()), settingWidget, SLOT(show()));
+    }
+    else if (height() == largeHeight)
+    {
+        animation->setStartValue(geometry());
+        animation->setEndValue(QRect(x(), y(), width(), smallHeight));
+        settingWidget->hide();
+    }
+    animation->setDuration(500);
+    animation->setEasingCurve(QEasingCurve::InOutCubic);
+    animation->start();
+}
+
+void SetupWizard::showOptionSettings()
+{
+
+}
+
+void SetupWizard::changePath()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Choose setup Directory"),
+                                                    "/home",
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+
+    defaultInstallPath = dir;
+    setupPathLineEdit->setText(QDir::toNativeSeparators(dir));
 }
 
 void SetupWizard::progressAnimation()
@@ -189,7 +260,7 @@ void SetupWizard::closeEvent(QCloseEvent *event)
 void SetupWizard::install()
 {
     if(installButton->text() == QString("Quick install")){
-        rmDir(defaultInstallPath + obj);
+        rmDir(QString("%1/%2").arg(defaultInstallPath, obj));
         QString installPath = defaultInstallPath;
         tempf = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::tempPath(), obj));
         rmDir(installPath);
@@ -197,15 +268,16 @@ void SetupWizard::install()
         QDir().rmdir(tempf);
         QDir().mkdir(tempf);
         install7z(tempf);
-        command_7z = QString("%1/7z.exe x %2/%3.7z.001 -o%4").arg(tempf, tempf, obj, defaultInstallPath);
+        command_7z = QString("%1/7z.exe x %2/%3.7z.001 -o\"%4\"").arg(tempf, tempf, obj, QDir::toNativeSeparators(defaultInstallPath));
+        qDebug(qPrintable(command_7z));
         info = command_7z;
         cmd->start(command_7z);
     }
     else if (installButton->text() == QString("Quick experience")){
         QProcess *process = new QProcess;
         QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
-//        qDebug(qPrintable(QDir::toNativeSeparators(command)));
-        process->start(QDir::toNativeSeparators(command));
+        qDebug(qPrintable(QDir::toNativeSeparators(command)));
+        process->start(QString("\"%1\"").arg(QDir::toNativeSeparators(command)));
         qApp->quit();
     }
 }

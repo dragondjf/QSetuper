@@ -9,5 +9,7 @@
         <file>skin/appbar.minus.png</file>
         <file>skin/QFramer.png</file>
         <file>skin/theme.qss</file>
+        <file>skin/appbar.settings.black.png</file>
+        <file>skin/appbar.settings.white.png</file>
     </qresource>
 </RCC>

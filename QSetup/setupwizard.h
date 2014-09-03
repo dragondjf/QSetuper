@@ -21,10 +21,9 @@ class SetupWizard : public FBaseDialog
     Q_OBJECT
 public:
     QPushButton* installButton;
+    QToolButton* settingButton;
     QPushButton* changePathButton;
     QLineEdit* setupPathLineEdit;
-    QLabel* setupLabel;
-    QTextEdit* outPutEdit;
     QString tempf;
     QString command_7z;
     QString info;
@@ -39,6 +38,11 @@ public:
     QProgressBar* progressBar;
     QPropertyAnimation* progressBarAnimation;
     int progressDuration;
+
+    int largeHeight;
+    int smallHeight;
+
+    QWidget* settingWidget;
 
 public:
     explicit SetupWizard(QWidget *parent = 0);
@@ -61,8 +65,11 @@ protected:
 public slots:
     void install();
     void setOutPut();
+    void showOptionSettings();
+    void showOptionAnimation();
     void progressAnimation();
     void progressAnimationClose();
+    void changePath();
 };
 
 #endif
