@@ -55,6 +55,7 @@ HEADERS  += \
     QSetup/setupwizard.h
 
 
+
 contains(QT_MAJOR_VERSION, 5){
     RC_ICONS = "skin/setup_green.ico"
 }

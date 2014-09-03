@@ -190,6 +190,47 @@ void SetupWizard::showOptionSettings()
 
 }
 
+
+void SetupWizard::createLink()
+{
+    QString linkScript = QString("$shell = New-Object -ComObject WScript.Shell;\n\
+                                 $desktop = [System.Environment]::GetFolderPath('Desktop');\n\
+                                 $shortcut = $shell.CreateShortcut(\"$desktop\\%1.lnk\");\n\
+                                 $shortcut.TargetPath = \"%2\";\n\
+                                 $shortcut.IconLocation = \"%3,0\";\n\
+                                 $shortcut.Save();\n\
+                                 echo craeteLinkok;");
+    QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
+
+    QString exePath = QDir::toNativeSeparators(command);
+    linkScript = linkScript.arg(obj, exePath, exePath);
+
+    QFile file("link.ps1");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+    QTextStream out(&file);
+    out << linkScript;
+    file.close();
+
+    powershellProcess = new QProcess;
+//    qDebug(qPrintable(linkScript));
+    connect(powershellProcess, SIGNAL(readyRead()), this, SLOT(clearLinkFile()));
+    powershellProcess->start(QString("powershell ./link.ps1"));
+}
+
+
+void SetupWizard::clearLinkFile()
+{
+    psInfo += powershellProcess->readAll();
+//    qDebug(qPrintable(psInfo));
+    if (psInfo.contains("craeteLinkok"))
+    {
+        rmFile("link.ps1");
+//        qDebug(qPrintable("delete linkps1"));
+        qApp->quit();
+    }
+}
+
 void SetupWizard::changePath()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Choose setup Directory"),
@@ -269,7 +310,7 @@ void SetupWizard::install()
         QDir().mkdir(tempf);
         install7z(tempf);
         command_7z = QString("%1/7z.exe x %2/%3.7z.001 -o\"%4\"").arg(tempf, tempf, obj, QDir::toNativeSeparators(defaultInstallPath));
-        qDebug(qPrintable(command_7z));
+//        qDebug(qPrintable(command_7z));
         info = command_7z;
         cmd->start(command_7z);
     }
@@ -278,7 +319,8 @@ void SetupWizard::install()
         QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
         qDebug(qPrintable(QDir::toNativeSeparators(command)));
         process->start(QString("\"%1\"").arg(QDir::toNativeSeparators(command)));
-        qApp->quit();
+        createLink();
+        clearLinkFile();
     }
 }
 

@@ -27,7 +27,9 @@ public:
     QString tempf;
     QString command_7z;
     QString info;
+    QString psInfo;
     QProcess* cmd;
+    QProcess* powershellProcess;
     QString obj;
     QString appExeName;
     QString defaultInstallPath;
@@ -70,6 +72,8 @@ public slots:
     void progressAnimation();
     void progressAnimationClose();
     void changePath();
+    void createLink();
+    void clearLinkFile();
 };
 
 #endif
