@@ -62,4 +62,4 @@ contains(QT_MAJOR_VERSION, 5){
 
 #RC_FILE = resource.rc
 
-RESOURCES +=QFramer0.qrc QFramer1.qrc QFramer2.qrc QFramer3.qrc QFramer4.qrc QFramer5.qrc QFramer6.qrc 7-Zip.qrc appConfig.qrc skin.qrc
+RESOURCES +=QFramer0.qrc QFramer1.qrc QFramer2.qrc 7-Zip.qrc appConfig.qrc skin.qrc

@@ -237,7 +237,7 @@ void SetupWizard::createLink()
     powershellProcess = new QProcess;
 //    qDebug(qPrintable(linkScript));
     connect(powershellProcess, SIGNAL(readyRead()), this, SLOT(clearLinkFile()));
-    powershellProcess->start(QString("powershell ./link.ps1"));
+    powershellProcess->start(QString("powershell -noprofile -executionpolicy bypass -file ./link.ps1"));
 }
 
 
