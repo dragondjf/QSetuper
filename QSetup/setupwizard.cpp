@@ -46,6 +46,7 @@
 #include <QDesktopWidget>
 #include <QProcessEnvironment>
 #include <QResource>
+#include <QSettings>
 #include <QFileDialog>
 #include "SetupWizard.h"
 #include "pictureview.h"
@@ -66,9 +67,14 @@ void SetupWizard::initData()
     largeHeight = 500;
     smallHeight = 437;
     cmd = new QProcess;
-    obj = "QFramer";
-    appExeName = "QFramer.exe";
-    defaultInstallPath = QDir("c:").absolutePath();
+
+    QSettings *configer = new QSettings(":/appConfig/example/qrcfiles/app.ini", QSettings::IniFormat);
+    configer->beginGroup("Basic");
+    obj = configer->value("appfoldername").toString();
+    appExeName = configer->value("appexename").toString();
+    count7z = configer->value("count7z").toInt();
+    defaultInstallPath = QDir(configer->value("appdestinationdir").toString()).absolutePath();
+    isShortCut = (bool)configer->value("isShortCut").toInt();
     progressDuration = 2800;
 }
 
@@ -193,17 +199,33 @@ void SetupWizard::showOptionSettings()
 
 void SetupWizard::createLink()
 {
-    QString linkScript = QString("$shell = New-Object -ComObject WScript.Shell;\n\
-                                 $desktop = [System.Environment]::GetFolderPath('Desktop');\n\
-                                 $shortcut = $shell.CreateShortcut(\"$desktop\\%1.lnk\");\n\
-                                 $shortcut.TargetPath = \"%2\";\n\
-                                 $shortcut.IconLocation = \"%3,0\";\n\
-                                 $shortcut.Save();\n\
-                                 echo craeteLinkok;");
-    QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
-
-    QString exePath = QDir::toNativeSeparators(command);
-    linkScript = linkScript.arg(obj, exePath, exePath);
+    QString linkScript;
+    if(isShortCut)
+    {
+        linkScript = QString("$shell = New-Object -ComObject WScript.Shell;\n\
+                                     $desktop = [System.Environment]::GetFolderPath('Desktop');\n\
+                                     $shortcut = $shell.CreateShortcut(\"$desktop\\%1.lnk\");\n\
+                                     $shortcut.TargetPath = \"%2\";\n\
+                                     $shortcut.IconLocation = \"%3,0\";\n\
+                                     $shortcut.WorkingDirectory  = \"%4\";\n\
+                                     $shortcut.Save();\n\
+                                     $shell.CurrentDirectory=\"%5\";\n\
+                                     $shell.exec(\"%6\");\n\
+                                     echo craeteLinkok;");
+        QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
+        QString workingDirectory = QString("%1/%2/").arg(defaultInstallPath, obj);
+        QString exePath = QDir::toNativeSeparators(command);
+        linkScript = linkScript.arg(obj, exePath, exePath, workingDirectory,workingDirectory, command);
+    }
+    else{
+        linkScript = QString("$shell = New-Object -ComObject WScript.Shell;\n\
+                                     $shell.CurrentDirectory=\"%1\";\n\
+                                     $shell.exec(\"%2\");\n\
+                                     echo craeteLinkok;");\
+        QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
+        QString workingDirectory = QString("%1/%2/").arg(defaultInstallPath, obj);
+        linkScript = linkScript.arg(workingDirectory, command);
+    }
 
     QFile file("link.ps1");
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -315,10 +337,6 @@ void SetupWizard::install()
         cmd->start(command_7z);
     }
     else if (installButton->text() == QString("Quick experience")){
-        QProcess *process = new QProcess;
-        QString command = QString("%1/%2/%3").arg(defaultInstallPath, obj, appExeName);
-        qDebug(qPrintable(QDir::toNativeSeparators(command)));
-        process->start(QString("\"%1\"").arg(QDir::toNativeSeparators(command)));
         createLink();
         clearLinkFile();
     }
@@ -354,12 +372,11 @@ void SetupWizard::install7z(QString& tempf)
     srcfName = QString(":/7-Zip/7-Zip/%1").arg("7z.exe");
     instIndvfl(srcfName, QString("%1/7z.exe").arg(tempf));
 
-    QString obj = "QFramer";
     QStringList files;
-    for(int i=1; i<4; i++)
+    for(int i=1; i<count7z + 1; i++)
     {
         QString fname = QString("%1.7z.00").arg(obj) + QString::number(i);
-        QString fpath = QString(":/QFramer/example/qrcfiles/") + fname;
+        QString fpath = QString(":/%1/example/qrcfiles/").arg(obj) + fname;
         files << fpath;
         QString ftemppath = QString("%1/%2").arg(tempf, fname);
 

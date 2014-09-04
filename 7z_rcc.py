@@ -5,7 +5,7 @@ import subprocess
 import os
 import sys
 import time
-
+import ConfigParser
 import xml.dom.minidom as Dom
 
 
@@ -117,6 +117,8 @@ def generateQRCFile(destination=None, obj=None):
         qrcGenerator.genXml(qrc)
         qrcfiles.append(qrc)
 
+    count7z = len(qrcfiles)
+
     obj_7z = '7-Zip'
     fiels_7z = getfiles(obj_7z)
     qrcGenerator = XMLGenerator()
@@ -131,6 +133,10 @@ def generateQRCFile(destination=None, obj=None):
         qrcGenerator.addNode(node_7z, qresourceNode)
     qrc = '%s.qrc' % obj_7z
     qrcGenerator.genXml(qrc)
+    qrcfiles.append(qrc)
+
+
+    qrc = generateConfigQRC(os.sep.join([destination, 'app.ini']), count7z)
     qrcfiles.append(qrc)
 
     qrcfiles.append('skin.qrc')
@@ -188,16 +194,55 @@ def rebuild_7z(srcfolder, dest, objectName, num=10):
                     fp.write(f.read())
 
 
+def generateConfigQRC(destobj, count7z):
+    config = ConfigParser.ConfigParser()
+    config.add_section("Basic")# 设置section段及对应的值
+    config.set("Basic","appFolderName",appConfig['appFolderName'])
+    config.set("Basic","appExeName",appConfig['appExeName'])
+    config.set("Basic","appDestinationDir",appConfig['appDestinationDir'])
+    config.set("Basic","isShortCut",appConfig['isShortCut'])
+    config.set("Basic","count7z",count7z)
+    config.write(open(destobj, "w"))# 写入文件
+
+
+    obj = 'appConfig'
+    fiels = ['example/qrcfiles/app.ini']
+    qrcGenerator = XMLGenerator()
+    rccNode = qrcGenerator.createNode("RCC")
+    qrcGenerator.addNode(node=rccNode)
+    qresourceNode = qrcGenerator.createNode("qresource")
+    qrcGenerator.setNodeAttr(qresourceNode, 'prefix', "/%s" % obj)
+    qrcGenerator.addNode(qresourceNode, rccNode)
+    for index, f in enumerate(fiels):
+        node = qrcGenerator.createNode("file")
+        qrcGenerator.setNodeValue(node, f)
+        qrcGenerator.addNode(node, qresourceNode)
+    qrc = '%s.qrc' % obj
+    qrcGenerator.genXml(qrc)
+    return qrc
+
+appConfig = {
+    'appFolderName': "QFramer",
+    'appExeName': "QFramer.exe",
+    'appDestinationDir': "C:",
+    'isShortCut': 1,
+}
+
+
 if __name__ == '__main__':
-    root = './example'
-    objectName = 'QFramer'
-    scr = './example/%s' % objectName
+    appFolderName = appConfig['appFolderName']
+    appExeName = appConfig['appExeName']
+
+    appSourceDir = './example'
+
+    scr = './example/%s' % appFolderName
     destination = 'example/qrcfiles'
     print 'starting 7z.....'
-    result = zip_7z(scr, destination, objectName)
+    result = zip_7z(scr, destination, appFolderName)
     print ' starting unzip.......'
-    unzip_7z(destination, root, objectName)
+    unzip_7z(destination, appSourceDir, appFolderName)
     print getfiles('7-Zip')
     clearQRCFiles()
-    qrcfiles = generateQRCFile(destination, objectName)
+    qrcfiles = generateQRCFile(destination, appFolderName)
+    print qrcfiles, '+++++'
     addQRCToPro('Qsetuper.pro', qrcfiles)

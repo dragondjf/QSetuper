@@ -32,6 +32,8 @@ public:
     QProcess* powershellProcess;
     QString obj;
     QString appExeName;
+    int count7z;
+    bool isShortCut;
     QString defaultInstallPath;
 
     QPoint dragPosition;
@@ -45,6 +47,8 @@ public:
     int smallHeight;
 
     QWidget* settingWidget;
+
+
 
 public:
     explicit SetupWizard(QWidget *parent = 0);
