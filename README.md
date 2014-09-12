@@ -12,15 +12,17 @@ QSetuper is an tool  application like  nsis or inno setup,  but this is an c++ a
 + create desktop link
 + ....
 
+####3.Build
+It should build under Qt4.8.6 or Qt5.3.0 static release
 
-####3.Screenshot
+####4.Screenshot
 ![6](doc/1.png)
 ![7](doc/2.png)
 ![8](doc/3.png)
 ![9](doc/4.png)
 
 
-####3.How
+####5.How
 1. move you application to example directory
 2. python 7z-rcc.py
 3. open QSetup.pro with Qt Creater, **you should work with Qt static release version**, Just do it as you know.
