@@ -26,3 +26,9 @@ example/*
 *.qrc
 *.pro.user
 build_*/
+
+Makefile
+Makefile.*
+*.Debug
+*.Release
+*.rc
